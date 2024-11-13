@@ -30,5 +30,6 @@ def navbar() -> rx.Component:
         z_index="999",
         top = "0",
         padding = "1%",
-        width = "100%"
+        width = "100%",
+        bg = "black"
     )

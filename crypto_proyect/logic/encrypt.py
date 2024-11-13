@@ -25,7 +25,8 @@ def afin_encrypt(value: str) -> str:
 
     for char in value:
         n_char = ord(char)
-        if n_char % 2 == 0 or n_char == 13: continue
+        if key_a % 2 == 0 or key_a == 13: continue
+        if n_char == 13: continue
         new_value += chr((((key_a * (n_char - 65)) + key_b) % 26) + 65)
 
     return new_value, f" a = {key_a}, b = {key_b}"

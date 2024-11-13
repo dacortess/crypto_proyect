@@ -45,6 +45,8 @@ def about() -> rx.Component:
     )
 
 app = rx.App(
+    app_name = "Crypto Analysis",
+    api_url = "https://crypto-proyect.onrender.com:8080"
 
 )
 

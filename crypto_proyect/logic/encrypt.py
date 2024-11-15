@@ -1,7 +1,5 @@
-def desplazamiento_encrypt(value: str) -> str:
-    from random import randint
+def desplazamiento_encrypt(value: str, key: int, x: int) -> str:
 
-    key = randint(1,25)
     value = value.upper()
     new_value = ''
 
@@ -12,30 +10,37 @@ def desplazamiento_encrypt(value: str) -> str:
 
     return new_value, f"a = {key}"
 
-def afin_encrypt(value: str) -> str:
-    from random import randint
-
-    key_a = randint(1,25)
-    while key_a == 13: key_a = randint(1,25)
-
-    key_b = randint(1,25)
+def afin_encrypt(value: str, key_a: int, key_b: int) -> str:
     
     value = value.upper()
     new_value = ''
 
     for char in value:
         n_char = ord(char)
-        if key_a % 2 == 0 or key_a == 13: continue
+        #if key_a % 2 == 0 or key_a == 13: continue
         if n_char == 13: continue
         new_value += chr((((key_a * (n_char - 65)) + key_b) % 26) + 65)
 
     return new_value, f" a = {key_a}, b = {key_b}"
 
+def multiplicativo_encrypt(value: str, key: int, x: int) -> str:
+
+    value = value.upper()
+    new_value = ''
+
+    for char in value:
+        n_char = ord(char)
+        if n_char == 32: continue
+        new_value += chr((((n_char - 65) * key) % 26) + 65)
+
+    return new_value, f"a = {key}"
+
 
 
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
-    "Afin": afin_encrypt
+    "Afin": afin_encrypt,
+    "Multiplicativo": multiplicativo_encrypt,
     }
 
 

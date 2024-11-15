@@ -45,7 +45,7 @@ def about() -> rx.Component:
     )
 
 app = rx.App(
-    app_name = "Crypto Analysis",
+    #app_name = "Crypto Analysis",
     #api_url = 
 
 )

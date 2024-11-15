@@ -1,5 +1,6 @@
 import reflex as rx
 from crypto_proyect.misc.constants import crypto_methods as values
+from crypto_proyect.misc.constants import crypto_methods_info as values_info
 from crypto_proyect.logic.encrypt import methods
 
 class FormState(rx.State):
@@ -22,11 +23,12 @@ class CryptoProcess(rx.State):
     possible_keys = ""
 
     @rx.event
-    def process_text(self, method: str, pre_text: str):
+    def process_text(self, method: str, pre_text: str, params):
+        #print(params)
         self.is_loading = True
         if "".join(pre_text.split()) != "":
             try:
-                self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""))
+                self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""), *(int(params[0]), int(params[1])))
             except Exception as e:
                 raise(e)
             finally:
@@ -72,13 +74,14 @@ def encrypt_box() -> rx.Component:
                             )
                         )
                     ),
-                    rx.button(
-                        "Encrypt",
-                        color_scheme = "blue",
-                        loading = CryptoProcess.is_loading,
-                        disabled = CryptoProcess.is_loading,
-                        on_click = CryptoProcess.process_text(FormState.value, TextAreaState.text)
-                    )
+                    parameters(),
+                ),
+                rx.spacer(),
+                rx.button(
+                    "Encrypt",
+                    color_scheme = "blue",
+                    loading = CryptoProcess.is_loading,
+                    on_click = CryptoProcess.process_text(FormState.value, TextAreaState.text, (ParamState.value1, ParamState.value2))
                 ),
             ),
             style={
@@ -100,3 +103,68 @@ def encrypt_box() -> rx.Component:
         padding = "2%",
         width = "100%"
     ) 
+
+class ParamState(rx.State):
+    value1: str = "1"
+    value2: str = "1"
+
+    @rx.event
+    def change_value1(self, value1: str):
+        self.value1 = value1
+    
+    @rx.event
+    def change_value2(self, value2: str):
+        self.value2 = value2
+        
+
+
+
+def parameters() -> rx.Component:
+    return rx.hstack(
+        rx.cond(
+            FormState.value == "Desplazamiento",
+            rx.hstack(
+                rx.text("Parametros: "),
+                rx.center(
+                    rx.select(
+                        values_info["Desplazamiento"]["range"],
+                        value1 = ParamState.value1,
+                        on_change = ParamState.change_value1
+                    ),
+                ),
+            )
+        ),
+        rx.cond(
+            FormState.value == "Afin",
+            rx.hstack(
+                rx.text("Parametros: "),
+                rx.center(
+                    rx.select(
+                        values_info["Afin"]["range"][0],
+                        value1 = ParamState.value1,
+                        on_change = ParamState.change_value1
+                    ),
+                ),
+                rx.center(
+                    rx.select(
+                        values_info["Afin"]["range"][1],
+                        value2 = ParamState.value2,
+                        on_change = ParamState.change_value2
+                    ),
+                )
+            )
+        ),
+        rx.cond(
+            FormState.value == "Multiplicativo",
+            rx.hstack(
+                rx.text("Parametros: "),
+                rx.center(
+                    rx.select(
+                        values_info["Multiplicativo"]["range"],
+                        value1 = ParamState.value1,
+                        on_change = ParamState.change_value1
+                    ),
+                ),
+            )
+        ),
+    )

@@ -1,3 +1,5 @@
+import math
+import random
 def desplazamiento_encrypt(value: str, key: int, x: int) -> str:
 
     value = value.upper()
@@ -35,12 +37,42 @@ def multiplicativo_encrypt(value: str, key: int, x: int) -> str:
 
     return new_value, f"a = {key}"
 
+def find_keys(p,q):
+    n = p*q
+    phi_n = (p-1) * (q-1) #Ya que phi(p*q) = phi(p) * phi(q) = (p-1)*(q-1) al ser p,q primos
+    a = random.randint(2,phi_n/2)
+    while True:
+        if math.gcd(a, phi_n) == 1:
+            break
+        a += 1
+    b = 2
+    while True:
+        if (b * a) % phi_n == 1:
+            break
+        b += 1
+    
+    return a,b
+    
 
+def RSA_encrypt(value: str, p: int, q: int):
+    n = p * q
+    a,b = find_keys(p,q)
+    
+    value = value.upper()
+    new_value = ''
+
+    for char in value:
+        n_char = ord(char)
+        if n_char == 32: continue
+        new_value += str(((n_char - 65)**a % n) + 65) + " "
+    #! Retorna el valor ASCII de cada letra en el mensaje encriptado, para que se imprima mejor en el front.
+    return new_value, f"a = {a}, b = {b}, n = {n}"
 
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
     "Afin": afin_encrypt,
     "Multiplicativo": multiplicativo_encrypt,
+    "RSA": RSA_encrypt,
     }
 
 

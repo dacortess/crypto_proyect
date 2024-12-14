@@ -35,11 +35,22 @@ def afin_encrypt(value: str) -> str:
 
     return possible_values
 
+def RSA_decrypt(value: str, n:int, b:str) ->str:
+    value = value.upper()
+    new_value = ''
+    n = int(n)
+    b = int(b)
+    for char in value.split():
+        char = int(char)
+        if char == 32: continue
+        new_value += chr(((char - 65)**b % n) + 65)
+    return new_value
 
 
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
-    "Afin": afin_encrypt
+    "Afin": afin_encrypt,
+    "RSA": RSA_decrypt
     }
 
 

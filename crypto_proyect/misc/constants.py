@@ -33,6 +33,12 @@ crypto_methods_info = {
             "formula": "(ax + b) mod 26",
         }, 
     "RSA" : {
+            "num": 3,
+            "name": ["a"],
+            "type": ["int"],
+            #! Algunos primos tales que q != p. Se podría hacer una lista mayor.
+            "range": [["2", "3", "79", "97", "101", "199", "227", "229", "349", "367"], ["11", "19", "41", "43", "113", "223", "251","311", "401", "419"]],
+            "formula": "x**a mod n",
 
         },
     "Multiplicativo" :  

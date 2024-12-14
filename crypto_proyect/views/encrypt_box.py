@@ -167,4 +167,24 @@ def parameters() -> rx.Component:
                 ),
             )
         ),
+        rx.cond(
+            FormState.value == "RSA",
+            rx.hstack(
+                rx.text("Parametros: "),
+                rx.center(
+                    rx.select(
+                        values_info["RSA"]["range"][0],
+                        value1 = ParamState.value1,
+                        on_change = ParamState.change_value1
+                    ),
+                ),
+                rx.center(
+                    rx.select(
+                        values_info["RSA"]["range"][1],
+                        value2 = ParamState.value2,
+                        on_change = ParamState.change_value2
+                    ),
+                )
+            )
+        ),
     )

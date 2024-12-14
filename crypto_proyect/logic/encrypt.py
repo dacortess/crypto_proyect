@@ -68,11 +68,27 @@ def RSA_encrypt(value: str, p: int, q: int):
     #! Retorna el valor ASCII de cada letra en el mensaje encriptado, para que se imprima mejor en el front.
     return new_value, f"a = {a}, b = {b}, n = {n}"
 
+def permutation_encrypt(value: str, m: str, pi:str) -> str:
+    #pi tiene la forma "3 1 0 2"
+    pi = [int(x) for x in pi.split()]
+    m = int(m)
+    value = value.upper()
+    new_value = ''
+    while len(value) % m != 0:
+        value += chr(random.randint(65, 65+25))           #Se rellena con letras aleatorias para que el mensaje tenga un tamaño múltiplo de m
+    for i in range(0, len(value)):
+        numero_en_grupo = i % m 
+        numero_de_bloque =  m * (i // m)
+        new_value += value[pi[numero_en_grupo] + numero_de_bloque]
+    key = " ".join([str(x) for x in pi])
+    return new_value, f"m = {m}, pi = {key}"
+
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
     "Afin": afin_encrypt,
     "Multiplicativo": multiplicativo_encrypt,
     "RSA": RSA_encrypt,
+    "Permutacion": permutation_encrypt,
     }
 
 

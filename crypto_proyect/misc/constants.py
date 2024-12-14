@@ -53,6 +53,11 @@ crypto_methods_info = {
 
         },
     "Permutacion" : {
+            "num": 5,
+            "name": ["a", "b"],
+            "type": ["int"],
+            "range": [str(x) for x in range(1,26)],
+            "formula": "ax mod 26",
 
         },
     "Hill" : {

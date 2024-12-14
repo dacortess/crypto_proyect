@@ -28,7 +28,10 @@ class CryptoProcess(rx.State):
         self.is_loading = True
         if "".join(pre_text.split()) != "":
             try:
-                self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""), *(int(params[0]), int(params[1])))
+                if method == "Permutacion":
+                    self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""), *(int(params[0]), params[1]))
+                else:
+                    self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""), *(int(params[0]), int(params[1])))
             except Exception as e:
                 raise(e)
             finally:
@@ -185,6 +188,36 @@ def parameters() -> rx.Component:
                         on_change = ParamState.change_value2
                     ),
                 )
+            )
+        ),
+        rx.cond(
+            FormState.value == "Permutacion",
+            rx.hstack(
+                rx.text("Parametros: "),
+                rx.center(
+                    rx.text_area(
+                        placeholder = "Ingrese m (numero de letras por cluster)",
+                        text = TextAreaState.text,
+                        value1 = ParamState.value1,
+                        on_change = ParamState.change_value1,
+                        size = "1",
+                        variant = "surface",
+                        resize = "both",
+                        min_legth = 1,
+                    ),
+                ),
+                rx.center(
+                    rx.text_area(
+                        placeholder = "Ingrese permutación (ejemplo: 3 1 0 2)",
+                        text = TextAreaState.text,
+                        value2 = ParamState.value2,
+                        on_change = ParamState.change_value2,
+                        size = "1",
+                        variant = "surface",
+                        resize = "both",
+                        min_legth = 1,
+                    ),
+                ),
             )
         ),
     )

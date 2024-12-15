@@ -6,6 +6,7 @@ class FormState(rx.State):
     value: str = values[0]
     rsa_n: str = ""
     rsa_private_key: str = ""
+    permutation_m: str = ""
 
     @rx.event
     def change_value(self, value: str):
@@ -19,6 +20,10 @@ class FormState(rx.State):
     def change_rsa_private_key(self, rsa_private_key: str):
         self.rsa_private_key = rsa_private_key
 
+    @rx.event
+    def change_permutation_m(self, permutation_m: str):
+        self.permutation_m = permutation_m
+
 class TextAreaState(rx.State):
     text: str = ""
 
@@ -29,48 +34,74 @@ class TextAreaState(rx.State):
 class CryptoProcess(rx.State):
     is_loading = False
     possible_values = ""
+    most_english_word = ""
 
     @rx.event
-    def process_text(self, method: str, pre_text: str, n: str = "", private_key: str = ""):
+    def process_text(self, method: str, pre_text: str, n: str = "", private_key: str = "", m: str = ""):
         if "".join(pre_text.split()) != "":
             self.is_loading = True
             try:
                 if method == "RSA" and (not n or not private_key):
-                    self.possible_values = "Please provide both n and private key for RSA decryption"
+                    self.possible_values = "Ingrese tanto n como la clave privada"
+                if method == "Permutación" and (not m or not m.isdigit()):
+                    self.possible_values = "Ingrese un número entero para m"
                     return
 
                 if method == "RSA":
                     self.possible_values = methods[method](pre_text, n, private_key)
+                    self.most_english_word = self.possible_values
+                elif method == "Permutacion":
+                    self.possible_values = " ".join([x[0] + " (" + "-".join(x[1:]) + ") || " for x in methods[method](pre_text, int(m))[0]])
+                    self.most_english_word = methods[method](pre_text, int(m))[1] 
+                
                 else:
-                    self.possible_values = " ".join([x[0] + " (" + "-".join(x[1:]) + ") || " for x in methods[method](pre_text)])
+                    self.possible_values = " ".join([x[0] + " (" + "-".join(x[1:]) + ") || " for x in methods[method](pre_text)[0]])
+                    self.most_english_word = methods[method](pre_text)[1] 
+                    
             except Exception as e:
                 self.possible_values = f"Error: {str(e)}"
+            
             finally:
                 self.is_loading = False
         else:
             self.possible_values = ""
 
 def decrypt_box() -> rx.Component:
-    def rsa_inputs():
+    def method_specific_inputs():
         return rx.cond(
             FormState.value == "RSA",
             rx.vstack(
                 rx.hstack(
                     rx.text("n: "),
                     rx.input(
-                        placeholder="Enter n",
+                        placeholder="Ingrese n",
                         value=FormState.rsa_n,
                         on_change=FormState.change_rsa_n,
                         size="2"
                     )
                 ),
                 rx.hstack(
-                    rx.text("Private Key: "),
+                    rx.text("Clave privada: "),
                     rx.input(
-                        placeholder="Enter private key",
+                        placeholder="Ingrese clave privada",
                         value=FormState.rsa_private_key,
                         on_change=FormState.change_rsa_private_key,
                         size="2"
+                    )
+                )
+            ),
+            rx.cond(
+                FormState.value == "Permutacion",
+                rx.vstack(
+                    rx.hstack(
+                        rx.text("Adivine el número de letras por cluster (m): "),
+                        rx.input(
+                            placeholder="Enter m",
+                            value=FormState.permutation_m,
+                            on_change=FormState.change_permutation_m,
+                            size="2",
+                            type="number"
+                        )
                     )
                 )
             )
@@ -105,7 +136,7 @@ def decrypt_box() -> rx.Component:
                             )
                         )
                     ),
-                    rsa_inputs(),
+                    method_specific_inputs(),
                     rx.button(
                         "Decrypt",
                         color_scheme="blue",
@@ -115,7 +146,8 @@ def decrypt_box() -> rx.Component:
                             FormState.value, 
                             TextAreaState.text, 
                             FormState.rsa_n, 
-                            FormState.rsa_private_key
+                            FormState.rsa_private_key,
+                            FormState.permutation_m
                         )
                     )
                 ),
@@ -129,6 +161,10 @@ def decrypt_box() -> rx.Component:
             rx.text(
                 rx.text.strong("Possible Decrypted Texts: "), 
                 CryptoProcess.possible_values
+            ),
+            rx.text(
+                rx.text.strong("Opción más probable (inglés): "), 
+                CryptoProcess.most_english_word
             ),
             loading=CryptoProcess.is_loading
         ),

@@ -1,3 +1,9 @@
+import itertools
+import nltk
+from nltk.corpus import words
+from collections import Counter
+import math
+nltk.download('words')
 def desplazamiento_encrypt(value: str) -> str:
     value = value.upper()
     possible_values = list()
@@ -9,8 +15,9 @@ def desplazamiento_encrypt(value: str) -> str:
             if n_char == 32: continue
             new_value += chr(((n_char - 65 - key) % 26) + 65)
         possible_values.append((str(new_value), str(key)))
-
-    return possible_values
+        
+    mejor_palabra = get_most_english_string_letter_freq([x[0] for x in possible_values])
+    return possible_values, mejor_palabra
 
 def afin_encrypt(value: str) -> str:
 
@@ -33,7 +40,8 @@ def afin_encrypt(value: str) -> str:
             
             possible_values.append((str(new_value), str(inverso(key_a)), str(key_b)))
 
-    return possible_values
+    mejor_palabra = get_most_english_string_letter_freq([x[0] for x in possible_values])
+    return possible_values, mejor_palabra
 
 def RSA_decrypt(value: str, n:int, b:str) ->str:
     value = value.upper()
@@ -46,13 +54,79 @@ def RSA_decrypt(value: str, n:int, b:str) ->str:
         new_value += chr(((char - 65)**b % n) + 65)
     return new_value
 
+def permutation_decrypt(value:str, m:str) -> str:
+    #List all the inverse permutations
+    m = int(m)
+    value = value.upper()
+    values = list()
+    new_value = ''
+    
+    if len(value) % m != 0:
+        value += "X" * (m - len(value) % m)
+    possible_permutations = list(itertools.permutations([x for x in range(0,m)]))
+    for perm in possible_permutations:
+        for i in range(0,len(value),m):
+            for j in range(m):
+                new_value += value[i + perm[j]]
+        inv_perm = " ".join([str(x) for x in perm])
+        values.append((new_value, f"inverse perm = {inv_perm}"))
+        new_value = ''
+    
+    mejor_palabra = get_most_english_string_ngram([x[0] for x in values])
+    return values, mejor_palabra
 
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
     "Afin": afin_encrypt,
-    "RSA": RSA_decrypt
+    "RSA": RSA_decrypt,
+    "Permutacion": permutation_decrypt,
     }
 
+def train_ngram_model(corpus, n=3):
+    model = Counter()
+    for word in corpus:
+        word = word.lower()
+        for i in range(len(word) - n + 1):
+            ngram = word[i:i+n]
+            model[ngram] += 1
+    total_ngrams = sum(model.values())
+    for ngram in model:
+        model[ngram] /= total_ngrams
+    return model
+
+def ngram_score(string, model, n=3):
+    score = 0
+    string = string.lower()
+    for i in range(len(string) - n + 1):
+        ngram = string[i:i+n]
+        if ngram in model:
+            score += math.log(model[ngram])
+        else:
+            score += math.log(1e-10) 
+    return score
+
+def get_most_english_string_ngram(strings):
+    english_words = words.words()
+    bigram_model = train_ngram_model(english_words, n=3)
+    scores = {string: ngram_score(string, bigram_model) for string in strings}
+    return max(scores, key=scores.get)
+
+english_letter_freq = {
+    'e': 12.70, 't': 9.06, 'a': 8.17, 'o': 7.51, 'i': 6.97,
+    'n': 6.75, 's': 6.33, 'h': 6.09, 'r': 5.99, 'd': 4.25,
+    'l': 4.03, 'c': 2.78, 'u': 2.76, 'm': 2.41, 'w': 2.36,
+    'f': 2.23, 'g': 2.02, 'y': 1.97, 'p': 1.93, 'b': 1.29,
+    'v': 0.98, 'k': 0.77, 'x': 0.15, 'j': 0.15, 'q': 0.10, 'z': 0.07
+}
+
+def letter_score(string):
+    score = 0
+    for char in string.lower():
+        score += english_letter_freq.get(char, 0)
+    return score
+
+def get_most_english_string_letter_freq(strings):
+    return max(strings, key=letter_score)
 
 
 #####################################

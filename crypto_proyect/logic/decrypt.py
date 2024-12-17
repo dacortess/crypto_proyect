@@ -75,11 +75,38 @@ def permutation_decrypt(value:str, m:str) -> str:
     mejor_palabra = get_most_english_string_ngram([x[0] for x in values])
     return values, mejor_palabra
 
+def multiplicativo_decrypt(value: str) -> str:
+    value = value.upper()
+    possible_values = list()
+
+    # Find multiplicative inverse for keys from 1 to 25
+    for key in range(1, 26):
+        # Check if the key is coprime with 26 (has a multiplicative inverse)
+        if math.gcd(key, 26) == 1:
+            # Find the multiplicative inverse
+            inv_key = pow(key, -1, 26)
+            new_value = ''
+            for char in value:
+                n_char = ord(char)
+                if n_char == 32:  # Skip spaces
+                    continue
+                # Decrypt using the multiplicative inverse
+                new_value += chr(((n_char - 65) * inv_key % 26) + 65)
+            possible_values.append((str(new_value), str(key)))
+
+    if not possible_values:
+        return [], None
+    
+    # Find the most likely English string
+    mejor_palabra = get_most_english_string_letter_freq([x[0] for x in possible_values])
+    return possible_values, mejor_palabra
+
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
     "Afin": afin_encrypt,
     "RSA": RSA_decrypt,
     "Permutacion": permutation_decrypt,
+    "Multiplicativo": multiplicativo_decrypt,
     }
 
 def train_ngram_model(corpus, n=3):

@@ -40,7 +40,7 @@ def multiplicativo_encrypt(value: str, key: int, x: int) -> str:
 def find_keys(p,q):
     n = p*q
     phi_n = (p-1) * (q-1) #Ya que phi(p*q) = phi(p) * phi(q) = (p-1)*(q-1) al ser p,q primos
-    a = random.randint(2,phi_n/2)
+    a = random.randint(2,int(phi_n/2))
     while True:
         if math.gcd(a, phi_n) == 1:
             break
@@ -66,6 +66,8 @@ def RSA_encrypt(value: str, p: int, q: int):
         if n_char == 32: continue
         new_value += str(((n_char - 65)**a % n) + 65) + " "
     #! Retorna el valor ASCII de cada letra en el mensaje encriptado, para que se imprima mejor en el front.
+    print(new_value)
+    print(n_char, a)
     return new_value, f"a = {a}, b = {b}, n = {n}"
 
 def permutation_encrypt(value: str, m: str, pi:str) -> str:

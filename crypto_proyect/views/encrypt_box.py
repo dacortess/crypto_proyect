@@ -33,6 +33,7 @@ class CryptoProcess(rx.State):
                     processed_params = (int(params[0]), int(params[1]) if params[1].isdigit() else 1)
                     self.processed_text, self.possible_keys = methods[method](pre_text.replace(" ", ""), *processed_params)
             except Exception as e:
+                raise(e)
                 self.processed_text = f"Error: {str(e)}"
                 self.possible_keys = ""
             finally:

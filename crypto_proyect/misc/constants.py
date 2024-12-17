@@ -5,10 +5,10 @@ crypto_methods = [
     "Afin", 
     "RSA",
     "Multiplicativo",
-    "Sustitucion",
+    #"Sustitucion",
     "Permutacion",
-    "Hill",
-    "Vigenere"
+    #"Hill",
+    #"Vigenere"
 ]
 
 def inverse_list():
@@ -46,12 +46,12 @@ crypto_methods_info = {
             "num": 1,
             "name": ["a"],
             "type": ["int"],
-            "range": [str(x) for x in range(1,26)],
+            "range": inverse_list(),
             "formula": "ax mod 26",
         },
-    "Sustitucion" : {
+    #"Sustitucion" : {
 
-        },
+    #    },
     "Permutacion" : {
             "num": 5,
             "name": ["a", "b"],
@@ -60,10 +60,10 @@ crypto_methods_info = {
             "formula": "ax mod 26",
 
         },
-    "Hill" : {
+    # "Hill" : {
 
-        },
-    "Vigenere" : {
+    #     },
+    # "Vigenere" : {
 
-        }, 
+    #     }, 
 }

@@ -1,3 +1,5 @@
+import math
+import random
 def desplazamiento_encrypt(value: str, key: int, x: int) -> str:
 
     value = value.upper()
@@ -35,12 +37,60 @@ def multiplicativo_encrypt(value: str, key: int, x: int) -> str:
 
     return new_value, f"a = {key}"
 
+def find_keys(p,q):
+    n = p*q
+    phi_n = (p-1) * (q-1) #Ya que phi(p*q) = phi(p) * phi(q) = (p-1)*(q-1) al ser p,q primos
+    a = random.randint(2,int(phi_n/2))
+    while True:
+        if math.gcd(a, phi_n) == 1:
+            break
+        a += 1
+    b = 2
+    while True:
+        if (b * a) % phi_n == 1:
+            break
+        b += 1
+    
+    return a,b
+    
 
+def RSA_encrypt(value: str, p: int, q: int):
+    n = p * q
+    a,b = find_keys(p,q)
+    
+    value = value.upper()
+    new_value = ''
+
+    for char in value:
+        n_char = ord(char)
+        if n_char == 32: continue
+        new_value += str(((n_char - 65)**a % n) + 65) + " "
+    #! Retorna el valor ASCII de cada letra en el mensaje encriptado, para que se imprima mejor en el front.
+    print(new_value)
+    print(n_char, a)
+    return new_value, f"a = {a}, b = {b}, n = {n}"
+
+def permutation_encrypt(value: str, m: str, pi:str) -> str:
+    #pi tiene la forma "3 1 0 2"
+    pi = [int(x) for x in pi.split()]
+    m = int(m)
+    value = value.upper()
+    new_value = ''
+    while len(value) % m != 0:
+        value += chr(random.randint(65, 65+25))           #Se rellena con letras aleatorias para que el mensaje tenga un tamaño múltiplo de m
+    for i in range(0, len(value)):
+        numero_en_grupo = i % m 
+        numero_de_bloque =  m * (i // m)
+        new_value += value[pi[numero_en_grupo] + numero_de_bloque]
+    key = " ".join([str(x) for x in pi])
+    return new_value, f"m = {m}, pi = {key}"
 
 methods = {
     "Desplazamiento": desplazamiento_encrypt,
     "Afin": afin_encrypt,
     "Multiplicativo": multiplicativo_encrypt,
+    "RSA": RSA_encrypt,
+    "Permutacion": permutation_encrypt,
     }
 
 
